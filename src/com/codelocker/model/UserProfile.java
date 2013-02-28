@@ -21,6 +21,8 @@ public class UserProfile {
 	 * @param connection the current SQL connection
 	 */
 	public UserProfile(String email, Connection connection) {
+		//creates a new logger with this class.
+		logger = new ExceptionLogger(this.getClass());
 		//sets local email and connection variables for later use.
 		this.connection = connection;
 		this.email = email;
