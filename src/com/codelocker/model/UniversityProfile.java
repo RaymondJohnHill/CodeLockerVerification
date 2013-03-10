@@ -82,7 +82,7 @@ public class UniversityProfile {
 		int votes = 0;
 		
 		try {
-			prepared = connection.prepareStatement("UPDATE codelocker.university_votes SET votes=(votes+1) WHERE university_id=?");
+			prepared = connection.prepareStatement("SELECT votes FROM codelocker.university_votes WHERE university_id=?");
 			prepared.setInt(1, university_id);
 			results = prepared.executeQuery();
 			
@@ -94,6 +94,52 @@ public class UniversityProfile {
 		}
 		
 		return votes;
+	}
+	
+	/**
+	 * Gets the state that the university resides in.
+	 * @return the 2-letter state code
+	 */
+	public String getUniversityState() {
+		PreparedStatement prepared;
+		String state = null;
+		
+		try {
+			prepared = connection.prepareStatement("SELECT state FROM codelocker.universities WHERE university_id=?");
+			prepared.setInt(1, university_id);
+			results = prepared.executeQuery();
+			
+			while(results.next()) {
+				state = results.getString(1);
+			}			
+		} catch (SQLException e) {
+			Logger.getLogger(this.getClass()).error(e.getMessage());
+		}
+		
+		return state;
+	}
+	
+	/**
+	 * Gets the full name of the university.
+	 * @return the university name
+	 */
+	public String getUniversityName() {
+		PreparedStatement prepared;
+		String university_name = null;
+		
+		try {
+			prepared = connection.prepareStatement("SELECT university_name FROM codelocker.universities WHERE university_id=?");
+			prepared.setInt(1, university_id);
+			results = prepared.executeQuery();
+			
+			while(results.next()) {
+				university_name = results.getString(1);
+			}			
+		} catch (SQLException e) {
+			Logger.getLogger(this.getClass()).error(e.getMessage());
+		}
+		
+		return university_name;
 	}
 	
 }

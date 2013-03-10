@@ -9,6 +9,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import com.codelocker.model.HashDigestGenerator;
 import com.codelocker.model.RandomByteGenerator;
@@ -23,6 +24,8 @@ public class PasswordController {
 	private final int BYTE_LENGTH = 24;
 	
 	public PasswordController(String email) {
+		PropertyConfigurator.configure("./configs/base.configuration");
+		
 		try {
             //get the datasource
             Context initContext  = new InitialContext();
@@ -36,7 +39,8 @@ public class PasswordController {
         	Logger.getLogger(SQLConnection.class).error(e.getMessage());
         	System.exit(1);
 		}
-		UserProfile currentUser = new UserProfile(email, connection.getConnection());
+		
+		currentUser = new UserProfile(email, connection.getConnection());
 	}
 	
 	public void savePasswordAndSalt(String verification_code, String password) {

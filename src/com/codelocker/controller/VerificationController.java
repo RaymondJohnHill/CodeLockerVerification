@@ -50,7 +50,8 @@ public class VerificationController {
         	Logger.getLogger(SQLConnection.class).error(e.getMessage());
         	System.exit(1);
 		}
-		UserProfile currentUser = new UserProfile(email, connection.getConnection());
+		
+		currentUser = new UserProfile(email, connection.getConnection());
 	}
 	
 	/**
