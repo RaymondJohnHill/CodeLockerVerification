@@ -6,16 +6,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 public class UserProfile {
 
-	private Connection connection;
+	private final Connection connection;
+	private final String email;
+	private final int user_id;
+	
 	private ResultSet results;
-	
-	private static Logger logger;
-	
-	private String email;
 	
 	/**
 	 * UserProfile creates a new user profile based on the users email address.
@@ -23,32 +21,13 @@ public class UserProfile {
 	 * @param connection the current SQL connection
 	 */
 	public UserProfile(String email, Connection connection) {
-		//creates a new logger
-		logger = Logger.getLogger(this.getClass());
-		PropertyConfigurator.configure("./configs/UserProfile.configuration");
-
 		//sets local email and connection variables for later use
 		this.connection = connection;
 		this.email = email;
 		
 		//pushes the email to the database immediately
 		setEmail();
-		setAllNull();
-	}
-	
-	/**
-	 * Fills the current rows will NULL.
-	 */
-	private void setAllNull() {
-		PreparedStatement prepared;
-		try {
-			prepared = connection.prepareStatement("INSERT INTO CodeLocker.Credentials VALUES(default, default, default)");
-			prepared.executeUpdate();
-			prepared = connection.prepareStatement("INSERT INTO CodeLocker.UnverifiedUsers VALUES(default, default)");
-			prepared.executeUpdate();
-		} catch (SQLException e) {
-			logger.error(e.getMessage());
-		}
+		user_id = getUserID();
 	}
 	
 	/**
@@ -59,11 +38,11 @@ public class UserProfile {
 		PreparedStatement prepared;
 		//sets the into to -1 so we know we messed
 		//up somewhere if we get this as a result.
-		int user_id = 1;
+		int user_id = -1;
 		
 		try {
 			//builds the prepared statement.
-			prepared = connection.prepareStatement("SELECT user_id FROM CodeLocker.Users WHERE email=?");
+			prepared = connection.prepareStatement("SELECT user_id FROM codelocker.users WHERE email=?");
 			prepared.setString(1, email);
 			results = prepared.executeQuery();
 			
@@ -75,7 +54,8 @@ public class UserProfile {
 			
 		} catch (SQLException e){
 			//uh oh! this just logs the errors we get.
-			logger.error(e.getMessage());
+			Logger.getLogger(this.getClass()).error(e.getMessage());
+			System.exit(1);
 		}
 		
 		return user_id;
@@ -87,11 +67,11 @@ public class UserProfile {
 	private void setEmail() {
 		PreparedStatement prepared;
 		try {
-			prepared = connection.prepareStatement("INSERT IGNORE INTO CodeLocker.Users (email) VALUES(?)");
+			prepared = connection.prepareStatement("INSERT IGNORE INTO codelocker.users (email) VALUES(?)");
 			prepared.setString(1, email);
 			prepared.executeUpdate();
 		} catch (SQLException e) {
-			logger.error(e.getMessage());
+			Logger.getLogger(this.getClass()).error(e.getMessage());
 		}
 	}
 	
@@ -110,12 +90,12 @@ public class UserProfile {
 	public void setPasswordDigest(byte[] password_digest) {
 		PreparedStatement prepared;
 		try {
-			prepared = connection.prepareStatement("UPDATE CodeLocker.Credentials SET password_digest=? WHERE user_id=?");
+			prepared = connection.prepareStatement("UPDATE codelocker.credentials SET password_digest=? WHERE user_id=?");
 			prepared.setBytes(1, password_digest);
-			prepared.setInt(2, getUserID());
+			prepared.setInt(2, user_id);
 			prepared.executeUpdate();
 		} catch (SQLException e) {
-			logger.error(e.getMessage());
+			Logger.getLogger(this.getClass()).error(e.getMessage());
 		}
 	}
 	
@@ -128,15 +108,15 @@ public class UserProfile {
 		byte[] password_digest = null;
 		
 		try {
-			prepared = connection.prepareStatement("SELECT password_digest FROM CodeLocker.Credentials WHERE user_id=?");
-			prepared.setInt(1, getUserID());
+			prepared = connection.prepareStatement("SELECT password_digest FROM codelocker.credentials WHERE user_id=?");
+			prepared.setInt(1, user_id);
 			results = prepared.executeQuery();
 			
 			while(results.next()) {
 				password_digest = results.getBytes(1);
 			}
 		} catch (SQLException e) {
-			logger.error(e.getMessage());
+			Logger.getLogger(this.getClass()).error(e.getMessage());
 		}
 		
 		return password_digest;
@@ -149,12 +129,12 @@ public class UserProfile {
 	public void setSalt(byte[] password_salt) {
 		PreparedStatement prepared;
 		try {
-			prepared = connection.prepareStatement("UPDATE CodeLocker.Credentials SET password_salt=? WHERE user_id=?");
+			prepared = connection.prepareStatement("UPDATE codelocker.credentials SET password_salt=? WHERE user_id=?");
 			prepared.setBytes(1, password_salt);
-			prepared.setInt(2, getUserID());
+			prepared.setInt(2, user_id);
 			prepared.executeUpdate();
 		} catch (SQLException e) {
-			logger.error(e.getMessage());
+			Logger.getLogger(this.getClass()).error(e.getMessage());
 		}
 	}
 	
@@ -167,33 +147,33 @@ public class UserProfile {
 		byte[] password_salt = null;
 		
 		try {
-			prepared = connection.prepareStatement("SELECT password_salt FROM CodeLocker.Credentials WHERE user_id=?");
-			prepared.setInt(1, getUserID());
+			prepared = connection.prepareStatement("SELECT password_salt FROM codelocker.credentials WHERE user_id=?");
+			prepared.setInt(1, user_id);
 			results = prepared.executeQuery();
 			
 			while(results.next()) {
 				password_salt = results.getBytes(1);
 			}
 		} catch (SQLException e) {
-			logger.error(e.getMessage());
+			Logger.getLogger(this.getClass()).error(e.getMessage());
 		}
 		
 		return password_salt;
 	}
 	
 	/**
-	 * Sets the verification_code field in the UnverifiedUsers database.
+	 * Sets the verification_code field in the unverified_users database.
 	 * @param verification_code the string to store in the database
 	 */
 	public void setVerificationCode(String verification_code) {
 		PreparedStatement prepared;
 		try {
-			prepared = connection.prepareStatement("UPDATE CodeLocker.UnverifiedUsers SET verification_code=? WHERE user_id=?");
+			prepared = connection.prepareStatement("UPDATE codelocker.unverified_users SET verification_code=? WHERE user_id=?");
 			prepared.setString(1, verification_code);
-			prepared.setInt(2, getUserID());
+			prepared.setInt(2, user_id);
 			prepared.executeUpdate();
 		} catch (SQLException e) {
-			logger.error(e.getMessage());
+			Logger.getLogger(this.getClass()).error(e.getMessage());
 		}
 	}
 	
@@ -206,15 +186,15 @@ public class UserProfile {
 		String verification_code = "";
 		
 		try {
-			prepared = connection.prepareStatement("SELECT verification_code FROM CodeLocker.UnverifiedUsers WHERE user_id=?");
-			prepared.setInt(1, getUserID());
+			prepared = connection.prepareStatement("SELECT verification_code FROM codelocker.unverified_users WHERE user_id=?");
+			prepared.setInt(1, user_id);
 			results = prepared.executeQuery();
 			
 			while(results.next()) {
 				verification_code = results.getString(1);
 			}
 		} catch (SQLException e) {
-			logger.error(e.getMessage());
+			Logger.getLogger(this.getClass()).error(e.getMessage());
 		}
 		
 		return verification_code;

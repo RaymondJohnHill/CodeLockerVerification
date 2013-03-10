@@ -6,12 +6,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 public class SQLConnection {
 
 	private Connection connection;
-	private static Logger logger;
 	
 	/**
 	 * Starts a new connection and builds a database.
@@ -19,43 +17,50 @@ public class SQLConnection {
 	 * @param user the username to log in with
 	 * @param pass the password to log in with
 	 */
-	public SQLConnection(String host, String user, String pass) {
-		//creates a new logger
-		logger = Logger.getLogger(this.getClass());
-		PropertyConfigurator.configure("./configs/SQLConnection.configuration");
+	public SQLConnection(Connection connection) {
 		Statement statement;
 		
 		try{
-			connection = DriverManager.getConnection(host, user, pass);
+			this.connection = connection;
 			statement = connection.createStatement();
-			//CodeLocker database creation.
-			statement.executeUpdate("CREATE DATABASE IF NOT EXISTS CodeLocker");
-			//Use the CodeLocker database.
-			statement.execute("USE CodeLocker");
-			//Users table creation.
-			statement.executeUpdate("CREATE TABLE IF NOT EXISTS Users (" +
+			//codelocker database creation.
+			statement.executeUpdate("CREATE DATABASE IF NOT EXISTS codelocker");
+			//Use the codelocker database.
+			statement.execute("USE codelocker");
+			//users table creation.
+			statement.executeUpdate("CREATE TABLE IF NOT EXISTS users (" +
 									"user_id INT UNSIGNED AUTO_INCREMENT NOT NULL," +
-									"email VARCHAR(128)," +
+									"email VARCHAR(128) NOT NULL," +
 									"PRIMARY KEY (user_id)," +
 									"UNIQUE(email))");
-			//Credentials table creation.
-			statement.executeUpdate("CREATE TABLE IF NOT EXISTS Credentials (" +
-									"user_id INT UNSIGNED AUTO_INCREMENT NOT NULL," +
-									"password_digest VARBINARY(128)," +
-									"password_salt VARBINARY(32)," +
-//									"PRIMARY KEY (user_id))");
+			//credentials table creation.
+			statement.executeUpdate("CREATE TABLE IF NOT EXISTS credentials (" +
+									"user_id INT UNSIGNED NOT NULL," +
+									"password_digest BINARY(128) NOT NULL," +
+									"password_salt BINARY(32) NOT NULL," +
 									"INDEX(user_id)," +
-									"FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE)");
-			//UnverifiedUsers table creation.
-			statement.executeUpdate("CREATE TABLE IF NOT EXISTS UnverifiedUsers (" +
-									"user_id INT UNSIGNED AUTO_INCREMENT NOT NULL," +
-									"verification_code VARCHAR(128)," +
-//									"PRIMARY KEY (user_id))");
-									"INDEX(user_id)," +
-									"FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE)");
+									"FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE)");
+			//unverified_users table creation.
+			statement.executeUpdate("CREATE TABLE IF NOT EXISTS unverified_users (" +
+									"user_id INT UNSIGNED NOT NULL," +
+									"verification_code VARCHAR(128) NOT NULL," +
+									"INDEX(verification_code)," +
+									"FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE)");
+			//universities table creation.
+			statement.executeUpdate("CREATE TABLE IF NOT EXISTS universities (" +
+									"university_id INT UNSIGNED AUTO_INCREMENT NOT NULL," +
+									"university_name VARCHAR(128) NOT NULL," +
+									"domain_suffix VARCHAR(32) NOT NULL," +
+									"state CHAR(2) NOT NULL," +
+									"PRIMARY KEY (university_id))");
+			//university_votes table creation.
+			statement.executeUpdate("CREATE TABLE IF NOT EXISTS university_votes (" +
+									"university_id INT UNSIGNED NOT NULL," +
+									"votes INT NOT NULL," +
+									"FOREIGN KEY (university_id) REFERENCES universities(university_id))");
 			
 		} catch (SQLException e) {
-			logger.fatal(e.getMessage());
+			Logger.getLogger(SQLConnection.class).error(e.getMessage());
 		}
 	}
 	

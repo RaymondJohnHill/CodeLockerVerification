@@ -3,35 +3,25 @@ package com.codelocker.model;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 public class RandomByteGenerator {
-
-	private static Logger logger;
-	
-	/**
-	 * Class instantiator.
-	 */
-	public RandomByteGenerator() {
-		//creates a new logger
-		logger = Logger.getLogger(this.getClass());
-		PropertyConfigurator.configure("./configs/RandomByteGenerator.configuration");
-	}
 	
 	/**
 	 * Generates a cryptographically strong array of random bytes.
 	 * @param byteLen the length of the array in bytes
 	 * @return an array of random bytes
 	 */
-	public byte[] generateSecureRandomBytes(int byteLen) {
+	public static byte[] generateSecureRandomBytes(int byteLen) {
+		final String algorithm = "SHA1PRNG";
 		byte[] bytes = new byte[byteLen];
 		
 		try {
 			//uses the SHA1PRNG pseudo-random number generator algorithm.
-			SecureRandom sRand = SecureRandom.getInstance("SHA1PRNG");
+			SecureRandom sRand = SecureRandom.getInstance(algorithm);
 			sRand.nextBytes(bytes);
 		} catch (NoSuchAlgorithmException e) {
-			logger.error(e.getMessage());
+			Logger.getLogger(RandomByteGenerator.class).error(e.getMessage() + algorithm + " algorithm not valid!");
+			System.exit(1);
 		}
 		
 		return bytes;

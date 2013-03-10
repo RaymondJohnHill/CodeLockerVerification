@@ -1,17 +1,17 @@
 package com.codelocker.model;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import org.apache.commons.mail.DefaultAuthenticator;
+import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 public class VerificationEmailer {
 	
-	private String host, user, pass;
-	private int port;
-	private static Logger logger; 
+	private final String host, user, pass;
+	private final int port;
 	
 	/**
 	 * Builds a new VerificationEmailer with the host name, port number, user name, and password.
@@ -20,11 +20,7 @@ public class VerificationEmailer {
 	 * @param user the user name to log in to the smtp server
 	 * @param pass the password to log in to the smtp server
 	 */
-	public VerificationEmailer(String host, int port, String user, String pass) {
-		//creates a new logger
-		logger = Logger.getLogger(this.getClass());
-		PropertyConfigurator.configure("./configs/VerificationEmailer.configuration");
-		
+	public VerificationEmailer(String host, int port, String user, String pass) {		
 		//assigns class variables
 		this.host = host;
 		this.port = port;
@@ -35,10 +31,10 @@ public class VerificationEmailer {
 	/**
 	 * Sends the verification email to the specified user.
 	 * @param email the email address of the recipient
-	 * @param verification the url-safe, base64 encoded hash
+	 * @param encodedVerification the url-safe, base64 encoded hash
 	 * @return true if the email sent successfully, false otherwise
 	 */
-	public boolean sendVerification(String email, String verification) {
+	public void sendVerification(String email, String encodedVerification) {
 		SimpleEmail mail = new SimpleEmail();
 		mail.setHostName(host);
 		mail.setSmtpPort(port);
@@ -53,13 +49,15 @@ public class VerificationEmailer {
 						"http://www.codelocker.com/verify?email=" +
 						URLEncoder.encode(email, "UTF-8") +
 						"&verification=" +
-						verification);
+						encodedVerification);
 			mail.addTo(email,"Newest Member of CodeLocker");
 			mail.send();
-			return true;
-		} catch (Exception e) {
-			logger.fatal(e.getMessage());
-			return false;
+		} catch (EmailException e) {
+			Logger.getLogger(this.getClass()).fatal(e.getMessage());
+			System.exit(1);
+		} catch (UnsupportedEncodingException e) {
+			Logger.getLogger(this.getClass()).fatal(e.getMessage());
+			System.exit(1);
 		}
 	}
 	

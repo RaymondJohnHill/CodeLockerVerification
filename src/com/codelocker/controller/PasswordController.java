@@ -1,5 +1,15 @@
 package com.codelocker.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
+import org.apache.log4j.Logger;
+
 import com.codelocker.model.HashDigestGenerator;
 import com.codelocker.model.RandomByteGenerator;
 import com.codelocker.model.SQLConnection;
@@ -7,28 +17,40 @@ import com.codelocker.model.UserProfile;
 
 public class PasswordController {
 
-	//variables for the user to enter later
-	private String sqlHostName = "";
-	private String sqlUserName = "";
-	private String sqlPassword = "";
-	
-	
 	private SQLConnection connection;
+	private DataSource dataSource;
 	private UserProfile currentUser;
 	private final int BYTE_LENGTH = 24;
 	
 	public PasswordController(String email) {
-		connection = new SQLConnection(sqlHostName, sqlUserName, sqlPassword);
+		try {
+            //get the datasource
+            Context initContext  = new InitialContext();
+            Context envContext  = (Context)initContext.lookup("java:/comp/env");
+            dataSource = (DataSource)envContext.lookup("codelocker_connection");
+            connection = new SQLConnection(dataSource.getConnection());             
+        } catch (NamingException e) {
+        	Logger.getLogger(SQLConnection.class).error(e.getMessage());
+        	System.exit(1);
+        } catch (SQLException e) {
+        	Logger.getLogger(SQLConnection.class).error(e.getMessage());
+        	System.exit(1);
+		}
 		UserProfile currentUser = new UserProfile(email, connection.getConnection());
 	}
 	
 	public void savePasswordAndSalt(String verification_code, String password) {
-		if(verificationCheck(verification_code)) {
-			RandomByteGenerator randByteGen = new RandomByteGenerator();
-			HashDigestGenerator digestGen = new HashDigestGenerator();
+		if(verificationCheck(verification_code)) {			
+			final String encoding = "UTF-8";
+			final byte[] password_salt = RandomByteGenerator.generateSecureRandomBytes(BYTE_LENGTH);
+			byte[] password_digest = null;
 			
-			byte[] password_salt = randByteGen.generateSecureRandomBytes(BYTE_LENGTH);
-			byte[] password_digest = digestGen.getByteDigest(password + password_salt);
+			try {
+				password_digest = HashDigestGenerator.getByteDigestWithSalt(password.getBytes(encoding), password_salt);
+			} catch (UnsupportedEncodingException e) {
+				Logger.getLogger(this.getClass()).error(e.getMessage() + encoding + " is not a valid method of encoding.");
+				System.exit(1);
+			}
 			
 			currentUser.setPasswordDigest(password_digest);
 			currentUser.setSalt(password_salt);
@@ -41,7 +63,7 @@ public class PasswordController {
 	 * @return true if the verification codes match, false otherwise
 	 */
 	private boolean verificationCheck(String verification_code) {
-		return verification_code.contentEquals(currentUser.getVerificationCode());
+		return verification_code.equals(currentUser.getVerificationCode());
 	}
 	
 }

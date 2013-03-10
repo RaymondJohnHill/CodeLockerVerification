@@ -1,0 +1,1 @@
+19:12:49,841 ERROR SQLConnection:47 - Need to specify class name in environment or system property, or as an applet parameter, or in an application resource file:  java.naming.factory.initial
