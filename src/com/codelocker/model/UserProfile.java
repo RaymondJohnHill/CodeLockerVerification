@@ -67,9 +67,16 @@ public class UserProfile {
 	private void setEmail() {
 		PreparedStatement prepared;
 		try {
-			prepared = connection.prepareStatement("INSERT IGNORE INTO codelocker.users (email) VALUES(?)");
+			prepared = connection.prepareStatement("SELECT email FROM codelocker.users WHERE email=?");
 			prepared.setString(1, email);
-			prepared.executeUpdate();
+			results = prepared.executeQuery();
+			
+			if(results.next() == false) {
+				prepared = connection.prepareStatement("INSERT INTO codelocker.users (email) VALUES(?)");
+				prepared.setString(1, email);
+				prepared.executeUpdate();
+			}
+
 		} catch (SQLException e) {
 			Logger.getLogger(this.getClass()).error(e.getMessage());
 		}
@@ -90,10 +97,23 @@ public class UserProfile {
 	public void setPasswordDigest(byte[] password_digest) {
 		PreparedStatement prepared;
 		try {
-			prepared = connection.prepareStatement("UPDATE codelocker.credentials SET password_digest=? WHERE user_id=?");
-			prepared.setBytes(1, password_digest);
-			prepared.setInt(2, user_id);
-			prepared.executeUpdate();
+			
+			prepared = connection.prepareStatement("SELECT password_digest FROM codelocker.credentials WHERE user_id=?");
+			prepared.setInt(1, user_id);
+			results = prepared.executeQuery();
+			
+			if(results.next() == false) {
+				prepared = connection.prepareStatement("INSERT INTO codelocker.credentials (user_id, password_digest) VALUES(?,?)");
+				prepared.setInt(1, user_id);
+				prepared.setBytes(2, password_digest);
+				prepared.executeUpdate();
+			} else {
+				prepared = connection.prepareStatement("UPDATE codelocker.credentials SET password_digest=? WHERE user_id=?");
+				prepared.setBytes(1, password_digest);
+				prepared.setInt(2, user_id);
+				prepared.executeUpdate();
+			}
+			
 		} catch (SQLException e) {
 			Logger.getLogger(this.getClass()).error(e.getMessage());
 		}
@@ -168,9 +188,9 @@ public class UserProfile {
 	public void setVerificationCode(String verification_code) {
 		PreparedStatement prepared;
 		try {
-			prepared = connection.prepareStatement("UPDATE codelocker.unverified_users SET verification_code=? WHERE user_id=?");
-			prepared.setString(1, verification_code);
-			prepared.setInt(2, user_id);
+			prepared = connection.prepareStatement("INSERT IGNORE INTO codelocker.unverified_users (user_id, verification_code) VALUES(?,?)");
+			prepared.setInt(1, user_id);
+			prepared.setString(2, verification_code);
 			prepared.executeUpdate();
 		} catch (SQLException e) {
 			Logger.getLogger(this.getClass()).error(e.getMessage());

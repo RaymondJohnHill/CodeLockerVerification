@@ -64,9 +64,20 @@ public class UniversityProfile {
 		PreparedStatement prepared;
 		
 		try {
-			prepared = connection.prepareStatement("UPDATE codelocker.university_votes SET votes=(votes+1) WHERE university_id=?");
+			prepared = connection.prepareStatement("SELECT votes FROM codelocker.university_votes WHERE university_id=?");
 			prepared.setInt(1, university_id);
-			prepared.executeUpdate();
+			results = prepared.executeQuery();
+			
+			if(results.next() == false) {
+				prepared = connection.prepareStatement("INSERT INTO codelocker.university_votes VALUES(?,1)");
+				prepared.setInt(1, university_id);
+				prepared.executeUpdate();
+			} else {
+				prepared = connection.prepareStatement("UPDATE codelocker.university_votes SET votes=(votes+1) WHERE university_id=?");
+				prepared.setInt(1, university_id);
+				prepared.executeUpdate();
+			}
+			
 			
 		} catch (SQLException e) {
 			Logger.getLogger(this.getClass()).error(e.getMessage());

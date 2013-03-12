@@ -24,7 +24,6 @@ public class PasswordController {
 	private final int BYTE_LENGTH = 24;
 	
 	public PasswordController(String email) {
-		PropertyConfigurator.configure("./configs/base.configuration");
 		
 		try {
             //get the datasource

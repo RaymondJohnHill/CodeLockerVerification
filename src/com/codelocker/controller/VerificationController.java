@@ -35,19 +35,18 @@ public class VerificationController {
 	 * @param email the recipients email
 	 */
 	public VerificationController(String email) {
-		PropertyConfigurator.configure("./configs/base.configuration");
 		
 		try {
             //get the datasource
             Context initContext  = new InitialContext();
             Context envContext  = (Context)initContext.lookup("java:/comp/env");
             dataSource = (DataSource)envContext.lookup("codelocker_connection");
-            connection = new SQLConnection(dataSource.getConnection());             
+            connection = new SQLConnection(dataSource.getConnection());
         } catch (NamingException e) {
-        	Logger.getLogger(SQLConnection.class).error(e.getMessage());
+        	Logger.getLogger(this.getClass()).error(e.getMessage());
         	System.exit(1);
         } catch (SQLException e) {
-        	Logger.getLogger(SQLConnection.class).error(e.getMessage());
+        	Logger.getLogger(this.getClass()).error(e.getMessage());
         	System.exit(1);
 		}
 		

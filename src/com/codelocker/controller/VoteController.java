@@ -25,7 +25,6 @@ public class VoteController {
 	 * @param email the recipients email
 	 */
 	public VoteController(String email) {
-		PropertyConfigurator.configure("./configs/base.configuration");
 		
 		try {
             //get the datasource

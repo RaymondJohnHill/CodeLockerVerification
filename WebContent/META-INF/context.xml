@@ -4,6 +4,6 @@
     <Resource name="codelocker_connection" auth="Container"
         type="javax.sql.DataSource" username="root" password="f99g00f99"
         driverClassName="com.mysql.jdbc.Driver"
-        url="jdbc:mysql://localhost:3306/codelocker"
+        url="jdbc:mysql://localhost:3306/"
         maxActive="10" maxIdle="4" />
 </Context>
