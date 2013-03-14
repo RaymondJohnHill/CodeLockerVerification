@@ -49,9 +49,14 @@ public class VoteController {
 	 * @return the domain suffix
 	 */
 	private String getDomainSuffix(String email) {
+		//TODO change to get first '@' from the end
+		//TODO check if it ends in '.edu'
 		return email.split("@")[1];
 	}
 	
+	/**
+	 * Adds a vote to the tally.
+	 */
 	public void addVote() {
 		currentUni.incrementUniversityVotes();
 	}

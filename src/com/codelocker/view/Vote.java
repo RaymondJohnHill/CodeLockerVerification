@@ -35,19 +35,19 @@ public class Vote extends HttpServlet {
 		
 		PrintWriter out = response.getWriter();
 		
-		out.println("<HTML>\n" +
-					"  <HEAD>\n" +
-					"    <TITLE>Vote For Your School And Sign Up For A Free CodeLocker Account!</TITLE>\n" +
-					"  </HEAD>\n" +
-					"  <BODY>\n" +
-					"    <H1>Vote for your school!</H1>\n" +
-					"    <FORM NAME=\"input\" ACTION=\"Vote\" METHOD=\"post\">\n" +
-					"      Email: <INPUT TYPE=\"text\" NAME=\"email\"><BR />\n" +
-					"      <INPUT TYPE=\"checkbox\" NAME=\"useragreement\" VALUE=\"agree\">I agree to the <A HREF=\"\">terms and conditions!</A><BR />\n" +
-					"      <INPUT TYPE=\"submit\" VALUE=\"Vote!\">\n" +
+		out.println("<html>\n" +
+					"  <head>\n" +
+					"    <title>Vote For Your School And Sign Up For A Free CodeLocker Account!</title>\n" +
+					"  </head>\n" +
+					"  <body>\n" +
+					"    <h1>Vote for your school!</h1>\n" +
+					"    <form name=\"input\" action=\"Vote\" method=\"post\">\n" +
+					"      Email: <input type=\"text\" NAME=\"email\"><BR />\n" +
+					"      <input type=\"checkbox\" name=\"useragreement\" value=\"agree\">I agree to the <A HREF=\"\">terms and conditions!</A><BR />\n" +
+					"      <input type=\"submit\" VALUE=\"Vote!\">\n" +
 					"    </FORM>\n" +
-					"  </BODY>\n" +
-					"</HTML>\n");
+					"  </body>\n" +
+					"</html>\n");
 	}
 
 	/**
@@ -63,15 +63,15 @@ public class Vote extends HttpServlet {
 		
 		PrintWriter out = response.getWriter();
 		
-		out.println("<HTML>\n" +
-					"  <HEAD>\n" +
-					"    <TITLE>Sign Up For A Free CodeLocker Account!</TITLE>\n" +
-					"  </HEAD>\n" +
-					"  <BODY>\n" +
-					"    <H1>CodeLocker Signup!</H1>\n" +
-					"    <P>An email has been sent to: " + email + "</P>\n" +
-					"  </BODY>\n" +
-					"</HTML>\n");
+		out.println("<html>\n" +
+					"  <head>\n" +
+					"    <title>Sign Up For A Free CodeLocker Account!</title>\n" +
+					"  </head>\n" +
+					"  <body>\n" +
+					"    <h1>CodeLocker Signup!</h1>\n" +
+					"    <p>An email has been sent to: " + email + "</p>\n" +
+					"  </body>\n" +
+					"</html>\n");
 	}
 
 }

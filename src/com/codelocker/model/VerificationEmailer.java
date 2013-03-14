@@ -46,7 +46,7 @@ public class VerificationEmailer {
 			mail.setSubject("CodeLocker.com Email Verification");
 			mail.setMsg("Hello there! \n \n" +
 						"Welcome to CodeLocker! Please verify your account by clicking the link below. \n" +
-						"http://www.codelocker.com/verify?email=" +
+						"http://75.137.151.144:8080/CodeLockerVerification/Verify?email=" +
 						URLEncoder.encode(email, "UTF-8") +
 						"&verification=" +
 						encodedVerification);

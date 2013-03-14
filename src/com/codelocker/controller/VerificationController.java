@@ -43,10 +43,10 @@ public class VerificationController {
             dataSource = (DataSource)envContext.lookup("codelocker_connection");
             connection = new SQLConnection(dataSource.getConnection());
         } catch (NamingException e) {
-        	Logger.getLogger(this.getClass()).error(e.getMessage());
+        	Logger.getLogger(this.getClass()).error(e.getMessage() + " : Naming Exception thrown.");
         	System.exit(1);
         } catch (SQLException e) {
-        	Logger.getLogger(this.getClass()).error(e.getMessage());
+        	Logger.getLogger(this.getClass()).error(e.getMessage() + " : SQL Exception thrown.");
         	System.exit(1);
 		}
 		
@@ -66,6 +66,11 @@ public class VerificationController {
 		currentUser.setVerificationCode(verification_code);
 		
 		mail.sendVerification(currentUser.getEmail(), verification_code);
+	}
+	
+	private boolean checkEmailAddress() {
+		//TODO check to see if it ends in edu
+		return true;
 	}
 
 }

@@ -93,8 +93,8 @@ public class UniversityProfile {
 		int votes = 0;
 		
 		try {
-			prepared = connection.prepareStatement("SELECT votes FROM codelocker.university_votes WHERE university_id=?");
-			prepared.setInt(1, university_id);
+			prepared = connection.prepareStatement("SELECT COUNT(*) FROM codelocker.universities WHERE domain_suffix LIKE '%?'");
+			prepared.setString(1, domain_suffix);
 			results = prepared.executeQuery();
 			
 			while(results.next()) {

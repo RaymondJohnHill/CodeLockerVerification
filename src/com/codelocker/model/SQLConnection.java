@@ -60,7 +60,7 @@ public class SQLConnection {
 									"FOREIGN KEY (university_id) REFERENCES universities(university_id))");
 			
 		} catch (SQLException e) {
-			Logger.getLogger(SQLConnection.class).error(e.getMessage());
+			Logger.getLogger(SQLConnection.class).error(e.getMessage() + " Could not create tables.");
 		}
 	}
 	
